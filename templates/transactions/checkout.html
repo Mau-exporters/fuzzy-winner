@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section id="checkout" class="checkout section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Checkout</h2>
+    <p>Review your cart and proceed to payment.</p>
+  </div>
+
+  <div class="container" data-aos="fade-up">
+
+    {% if cart_items %}
+    <!-- Cart Table -->
+    <div class="table-responsive mb-4">
+      <table class="table table-bordered align-middle shadow-sm">
+        <thead class="table-light">
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price (KES)</th>
+            <th>Subtotal (KES)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cart_item in cart_items %}
+            <tr>
+              <td>{{ cart_item.name }}</td>
+              <td>{{ cart_item.quantity }}</td>
+              <td>{{ cart_item.price|floatformat:"2" }}</td>
+              <td>{{ cart_item.subtotal|floatformat:"2" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Total:</td>
+            <td class="fw-bold text-success">KES {{ total|floatformat:"2" }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- M-Pesa Payment Form -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Pay with M-Pesa</h5>
+       <form method="post" action="{% url 'transactions_app:lipa_na_mpesa_online' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="phone_number" class="form-label">Phone Number (2547xxxxxxxx):</label>
+            <input type="text" id="phone_number" name="phone" class="form-control" required pattern="2547[0-9]{8}" placeholder="2547xxxxxxxx">
+          </div>
+          <input type="hidden" name="amount" value="{{ total }}">
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-phone"></i> Pay KES {{ total|floatformat:"2" }} with M-Pesa
+          </button>
+        </form>
+      </div>
+    </div>
+
+    {% else %}
+      <div class="alert alert-warning text-center">
+        Your cart is empty. <a href="{% url 'exporters_app:store' %}">Continue shopping</a>.
+      </div>
+    {% endif %}
+
+    {% if messages %}
+      <div class="mt-4">
+        {% for message in messages %}
+          <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+  </div>
+</section>
+{% endblock %}

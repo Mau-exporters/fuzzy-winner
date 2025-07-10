@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">💖 My Wishlist ({{ wishlist_count }} items)</h2>
+
+  {% if items %}
+    <div class="row">
+      {% for item in items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            {% if item.image %}
+              <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ item.name }}</h5>
+              <p class="card-text">{{ item.description }}</p>
+              <p class="card-text text-muted">${{ item.price }}</p>
+              <div class="d-flex justify-content-between">
+                <a href="{% url 'exporters_app:remove_from_wishlist' item.id %}" class="btn btn-outline-danger btn-sm">Remove</a>
+                <a href="{% url 'exporters_app:add_to_cart' item.id %}" class="btn btn-outline-primary btn-sm">Add to Cart</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      Your wishlist is empty. <a href="{% url 'exporters_app:store' %}">Browse store</a> to start adding items!
+    </div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="{% url 'exporters_app:view_cart' %}" class="btn btn-secondary me-2">View Cart ({{ cart_count }})</a>
+    <a href="{% url 'exporters_app:store' %}" class="btn btn-primary">Back to store</a>
+  </div>
+</div>
+{% endblock %}

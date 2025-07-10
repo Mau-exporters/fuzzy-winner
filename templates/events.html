@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Farming Events{% endblock %}
+{% load static %}
+{% block content %}
+
+<!-- Events Section -->
+<section id="events" class="events section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+    <!-- Intro -->
+    <div class="intro-text text-center mb-5" data-aos="fade-up" data-aos-delay="150">
+      <h2>Create Unforgettable Farming Experiences</h2>
+      <p>Welcome to our farm events hub — connecting growers, enthusiasts, and communities.</p>
+    </div>
+
+    <!-- Static Event Types -->
+    <div class="event-types">
+      <div class="row">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="event-type-card">
+            <div class="icon-wrapper"><i class="bi bi-tree"></i></div>
+            <h3>Harvest Festivals &amp; Markets</h3>
+            <p>Celebrate the bounty of the season with fresh produce, artisan goods, and family fun.</p>
+            <span class="capacity">Open to all visitors</span>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="250">
+          <div class="event-type-card">
+            <div class="icon-wrapper"><i class="bi bi-gear-wide-connected"></i></div>
+            <h3>Workshops &amp; Training</h3>
+            <p>Learn sustainable farming techniques, soil health, and innovative agri-technology.</p>
+            <span class="capacity">Limited seats available</span>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="event-type-card">
+            <div class="icon-wrapper"><i class="bi bi-people"></i></div>
+            <h3>Community Farm Days</h3>
+            <p>Join hands with fellow farmers and volunteers for planting, harvesting, and farm tours.</p>
+            <span class="capacity">Family friendly</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-showcase" data-aos="fade-up" data-aos-delay="150">
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <img src="{% static 'assets/img/restaurant/event-1.webp' %}" alt="Farm Event Space" class="img-fluid main-image" data-aos="zoom-in" data-aos-delay="200">
+        </div>
+        <div class="col-lg-4">
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-12">
+              <img src="{% static 'assets/img/restaurant/event-5.webp' %}" alt="Farm Market" class="img-fluid gallery-item" data-aos="zoom-in" data-aos-delay="250">
+            </div>
+            <div class="col-md-6 col-lg-12">
+              <img src="{% static 'assets/img/restaurant/event-7.webp' %}" alt="Community Farming" class="img-fluid gallery-item" data-aos="zoom-in" data-aos-delay="300">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="event-cta my-5" data-aos="fade-up" data-aos-delay="200">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h3>Ready to Grow With Us?</h3>
+          <p>Get involved in our upcoming farming events and workshops. Whether you’re a seasoned farmer or a curious beginner, there’s something for everyone.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <a href="#" class="btn-reserve">Join an Event</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Events List -->
+    <div class="featured-events" data-aos="fade-up" data-aos-delay="200">
+      <h3>Upcoming Featured Farming Events</h3>
+      <p class="text-muted">Showing {{ upcoming_events|length }} event{{ upcoming_events|length|pluralize }}</p>
+
+      <div class="row g-4 mt-3">
+        {% for event in upcoming_events %}
+        <div class="col-lg-6 col-md-6">
+          <div class="featured-event-card" data-aos="fade-up" data-aos-delay="250">
+            <div class="event-date">
+              <span class="month">{{ event.date|date:"M" }}</span>
+              <span class="day">{{ event.date|date:"d" }}</span>
+            </div>
+            <div class="event-content">
+              <div class="event-image">
+                {% if event.image %}
+                  <img src="{{ event.image.url }}" alt="{{ event.title }}" class="img-fluid">
+                {% else %}
+                  <img src="{% static 'assets/img/restaurant/default-event.webp' %}" alt="Event" class="img-fluid">
+                {% endif %}
+              </div>
+              <div class="event-info">
+                <h4>{{ event.title }}</h4>
+                <ul class="event-meta">
+                  <li><i class="bi bi-clock"></i> {{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}</li>
+                  <li><i class="bi bi-geo-alt"></i> {{ event.location }}</li>
+                </ul>
+                <p>{{ event.description|truncatewords:25 }}</p>
+                <a href="#" class="btn-details">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info text-center" role="alert">
+            No upcoming events found. Please check back soon!
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

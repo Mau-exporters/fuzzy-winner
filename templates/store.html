@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}store{% endblock %}
+
+{% block content %}
+<section id="store" class="store section">
+  <div class="container section-title" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2>Store</h2>
+        <p>Explore our delicious range of farm-fresh offerings.</p>
+      </div>
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'exporters_app:add_store_item' %}" class="btn btn-success">
+          <i class="bi bi-plus-circle me-1"></i> Add New Item
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container" data-aos="fade-up">
+    <!-- Filters -->
+    <div class="menu-filters isotope-filters mb-5">
+      <ul class="list-unstyled d-flex flex-wrap gap-2 justify-content-center">
+        <li data-filter="*" class="filter-active">All</li>
+        <li data-filter=".filter-vegetables">Vegetables</li>
+        <li data-filter=".filter-fruits">Fruits</li>
+        <li data-filter=".filter-grains">Grains</li>
+        <li data-filter=".filter-dairy">Dairy</li>
+        <li data-filter=".filter-livestock">Livestock</li>
+      </ul>
+    </div>
+
+    <div class="menu-container isotope-container row gy-4">
+      {% for item in items %}
+      <div class="col-lg-6 isotope-item filter-{{ item.category|lower }}">
+        <div class="h-100">
+          <div class="menu-item d-flex gap-4 flex-column flex-md-row align-items-start p-3 border rounded shadow-sm h-100" style="min-height: 250px;">
+
+            {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.name }}"
+                   class="menu-img img-fluid rounded-3 shadow-sm"
+                   style="width: 120px; height: 120px; object-fit: cover;">
+            {% else %}
+              <img src="{% static 'assets/img/placeholder.png' %}" alt="No Image"
+                   class="menu-img img-fluid rounded-3 shadow-sm"
+                   style="width: 120px; height: 120px; object-fit: cover;">
+            {% endif %}
+
+            <div class="menu-content flex-grow-1 d-flex flex-column justify-content-between w-100">
+              <div>
+                <h5 class="d-flex justify-content-between align-items-center mb-1">
+                  <span>{{ item.name }}</span>
+                  {% if item.tag %}
+                    <span class="badge bg-info text-dark">{{ item.tag }}</span>
+                  {% endif %}
+                </h5>
+                <p class="text-muted mb-2 text-truncate-2">{{ item.description }}</p>
+                <div class="small text-muted mb-1">Category: {{ item.get_category_display }}</div>
+                <div class="price fw-bold text-success">${{ item.price }}</div>
+              </div>
+
+              <div class="mt-3">
+                {% if user.is_authenticated %}
+                  {% if not user.is_staff %}
+                    <div class="d-flex gap-2">
+                      <a href="{% url 'exporters_app:add_to_cart' item.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                      </a>
+                      <a href="{% url 'exporters_app:add_to_wishlist' item.id %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-heart me-1"></i> Wishlist
+                      </a>
+                    </div>
+                  {% endif %}
+
+                  {% if user.is_staff %}
+                    <div class="alert alert-warning p-2 mb-2">Admin Tools</div>
+                    <div class="d-flex flex-wrap gap-2">
+                      <a href="{% url 'exporters_app:edit_store_item' item.id %}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-pencil-square me-1"></i> Edit
+                      </a>
+                      <a href="{% url 'exporters_app:delete_store_item' item.id %}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('Are you sure you want to delete this item?');">
+                        <i class="bi bi-trash me-1"></i> Delete
+                      </a>
+                    </div>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+        <div class="col-12 text-center">
+          <p class="text-muted">No farm products available right now. Check back soon!</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const iso = new Isotope('.isotope-container', {
+      itemSelector: '.isotope-item',
+      layoutMode: 'fitRows'
+    });
+
+    const filterButtons = document.querySelectorAll('.isotope-filters li');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', function () {
+        filterButtons.forEach(b => b.classList.remove('filter-active'));
+        this.classList.add('filter-active');
+
+        const filterValue = this.getAttribute('data-filter');
+        iso.arrange({ filter: filterValue });
+      });
+    });
+  });
+</script>
+<style>
+  .menu-filters ul {
+    padding-left: 0;
+  }
+
+  .menu-filters li {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+  }
+
+  .menu-filters li.filter-active,
+  .menu-filters li:hover {
+    background-color: #198754;
+    color: white;
+  }
+</style>
+{% endblock %}

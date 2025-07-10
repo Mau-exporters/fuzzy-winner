@@ -1,0 +1,87 @@
+ {% extends "base.html" %}
+ {% block title%} contact {% endblock %}
+ {% load static %}
+ {% block content %}
+<!-- Location Section -->
+    <section id="location" class="location section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Location</h2>
+        <p>We are located at mau-narok</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row g-4">
+          <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
+            <div class="map-container">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d255344.49355367117!2d36.07886!3d-0.315812!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x18298d90cf610bef%3A0xf2f21833bc7cc21a!2sNakuru!5e0!3m2!1ssw!2ske!4v1749122701230!5m2!1ssw!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
+            <div class="info-container">
+              <div class="section-header">
+                <h2>Find Us</h2>
+                <p>Visit Us Today</p>
+              </div>
+
+              <div class="info-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="info-icon">
+                  <i class="bi bi-geo-alt"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Our Location</h3>
+                  <p>123 Mau narok, center, </p>
+                </div>
+              </div>
+
+                <div class="info-icon">
+                  <i class="telephone"></i>
+                </div>
+                <div class="info-icon">
+                  <i class="whatsApypp"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Reservations</h3>
+                  <p>+254 12345678</p>
+                  <p class="small-text">We recommend making reservations at least 48 hours in advance</p>
+                </div>
+              </div>
+
+              <div class="info-card" data-aos="fade-up" data-aos-delay="500">
+                <div class="info-icon">
+                  <i class="bi bi-clock"></i>
+                </div>
+                <div class="info-content">
+                  <h3>Hours</h3>
+                  <div class="hours-grid">
+                    <div class="day">Monday - Thursday</div>
+                    <div class="time">11:00 AM - 10:00 PM</div>
+
+                    <div class="day">Friday - Saturday</div>
+                    <div class="time">11:00 AM - 11:30 PM</div>
+
+                    <div class="day">Sunday</div>
+                    <div class="time">10:00 AM - 9:00 PM</div>
+
+                    <div class="day">Brunch Hours</div>
+                    <div class="time">Sat &amp; Sun, 10:00 AM - 2:00 PM</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cta-wrapper" data-aos="fade-up" data-aos-delay="600">
+                <a href="#" class="btn-book">Make a Reservation</a>
+                <a href="#" class="btn-contact">Contact Us</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Location Section --> 
+    {% endblock %}

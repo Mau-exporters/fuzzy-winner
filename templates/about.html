@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+
+<!-- Flash Messages -->
+{% if messages %}
+  <div class="container mt-4">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ==================== Hero Section ==================== -->
+<section id="hero" class="hero section py-5 bg-gradient" style="background: linear-gradient(135deg, #4caf50 0%, #81c784 100%); color: white;">
+  <div class="container" data-aos="fade-up">
+    <div class="row align-items-center gy-4">
+
+      <!-- Left Column: Content -->
+      <div class="col-lg-6">
+        <div class="p-4 bg-white bg-opacity-10 rounded-4 shadow-sm">
+          <div class="status-badge bg-light text-success fw-bold px-3 py-1 rounded-pill mb-3" style="width: fit-content; letter-spacing: 1px;">
+            Harvest Season Open
+          </div>
+
+          <h1 class="display-5 fw-bold mb-4">Cultivating Nature’s Bounty for a Sustainable Future</h1>
+          <p class="lead mb-4 opacity-85">
+            Explore our innovative and eco-friendly farming practices that nurture the earth and deliver fresh, healthy produce.
+            Join us in embracing sustainable agriculture and community-driven growth.
+          </p>
+
+          <div class="d-flex align-items-center mb-4 text-white-75 fs-5">
+            <i class="bi bi-clock-fill me-2"></i>
+            <span>Farm Visits: Mon - Sat, 8am - 6pm</span>
+          </div>
+
+          <div class="btn-group mb-4">
+            <a href="#farm-products" class="btn btn-success btn-lg shadow-sm me-3">
+              View Our Crops <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="#farming-features" class="btn btn-outline-light btn-lg shadow-sm">
+              Learn About Our Practices
+            </a>
+          </div>
+
+          <div class="social-links mt-auto d-flex gap-3 fs-3">
+            <a href="#" class="text-white opacity-75 hover-opacity-100 transition" title="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="text-white opacity-75 hover-opacity-100 transition" title="Instagram"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="text-white opacity-75 hover-opacity-100 transition" title="Twitter"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="text-white opacity-75 hover-opacity-100 transition" title="YouTube"><i class="bi bi-youtube"></i></a>
+            <a href="#" class="text-white opacity-75 hover-opacity-100 transition" title="Tiktok"><i class="bi bi-tiktok"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Carousel & Admin Form -->
+      <div class="col-lg-6">
+        <div class="d-flex flex-column align-items-center px-3 py-4 bg-white rounded-4 shadow-sm">
+
+          <!-- Carousel -->
+          <div class="swiper hero-swiper w-100 rounded-4 overflow-hidden shadow" data-aos="zoom-out" data-aos-delay="100" style="max-height: 350px;">
+            <script type="application/json" class="swiper-config">
+              {
+                "loop": true,
+                "speed": 900,
+                "autoplay": { "delay": 4500 },
+                "effect": "fade",
+                "slidesPerView": 1,
+                "navigation": {
+                  "nextEl": ".swiper-button-next",
+                  "prevEl": ".swiper-button-prev"
+                }
+              }
+            </script>
+
+            <div class="swiper-wrapper">
+              {% for slide in slides %}
+                <div class="swiper-slide">
+                  <div class="position-relative text-center">
+                    <img 
+                      src="{{ slide.image.url }}" 
+                      alt="{{ slide.alt_text }}" 
+                      class="img-fluid rounded-4 mx-auto" 
+                      style="height: 320px; object-fit: cover; max-width: 90%;"
+                    >
+                    {% if is_admin %}
+                      <form method="POST" class="position-absolute top-0 end-0 m-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_image" value="{{ slide.id }}">
+                        <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Delete Image">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              {% empty %}
+                <div class="swiper-slide">
+                  <div class="text-center">
+                    <img 
+                      src="{% static 'assets/img/farming/default-slide.jpg' %}" 
+                      alt="Default Slide" 
+                      class="img-fluid rounded-4 mx-auto" 
+                      style="height: 320px; object-fit: cover; max-width: 90%;"
+                    >
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="swiper-button-next btn btn-success btn-lg rounded-circle shadow"></div>
+            <div class="swiper-button-prev btn btn-success btn-lg rounded-circle shadow"></div>
+          </div>
+
+          {% if is_admin %}
+          <!-- Admin Carousel Form -->
+          <div class="admin-carousel-form mt-5 w-100">
+            <div class="card shadow-sm rounded-4">
+              <div class="card-body">
+                <h5 class="card-title mb-4 text-success">Manage Hero Slides</h5>
+
+                <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                  {% csrf_token %}
+
+                  <div class="mb-3">
+                    <label for="image" class="form-label fw-semibold">Upload Image</label>
+                    <input type="file" name="image" id="image" class="form-control" required>
+                    <div class="invalid-feedback">Please select an image.</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="alt_text" class="form-label fw-semibold">Alt Text</label>
+                    <input type="text" name="alt_text" id="alt_text" maxlength="150" class="form-control" placeholder="Describe the image..." required>
+                    <div class="invalid-feedback">Alt text is required.</div>
+                  </div>
+
+                  <button type="submit" name="add_image" class="btn btn-success fw-semibold">Add Slide</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ================== /Hero Section =================== -->
+
+<!-- ================== Farming Features Section =================== -->
+<section id="farming-features" class="section py-5 bg-white">
+  <div class="container" data-aos="fade-up">
+    <h2 class="section-title mb-5 text-center fw-bold" style="letter-spacing: 1px; color: #2e7d32;">
+      Our Sustainable Farming Practices
+    </h2>
+
+    <div class="row g-4">
+      {% for feature in features %}
+        <div class="col-md-4 text-center p-4 rounded-4 shadow-sm border border-1 border-success bg-light">
+          <i class="bi {{ feature.icon }} display-4 text-success mb-3"></i>
+          <h5 class="fw-semibold mb-2">{{ feature.title }}</h5>
+          <p class="text-muted">{{ feature.description }}</p>
+        </div>
+      {% empty %}
+        <p class="text-center fs-5 text-muted">No farming features available at the moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<!-- ================== /Farming Features Section =================== -->
+
+<!-- ================== Farm Statistics Section =================== -->
+<section id="farm-statistics" class="section py-5 bg-gradient-light" style="background: #e8f5e9;">
+  <div class="container" data-aos="fade-up">
+    <h2 class="section-title mb-5 text-center fw-bold" style="color: #388e3c; letter-spacing: 1px;">
+      Farm Achievements & Statistics
+    </h2>
+
+    <div class="row justify-content-center g-4 text-center">
+      {% for stat in stats %}
+        <div class="col-6 col-md-3 p-4 bg-white rounded-4 shadow-sm border border-success">
+          <h3 class="display-4 text-success">{{ stat.number }}{{ stat.suffix }}</h3>
+          <p class="fs-5 fw-semibold text-muted">{{ stat.label }}</p>
+        </div>
+      {% empty %}
+        <p class="text-center fs-5 text-muted">Farm statistics are not available at this time.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<!-- ================== /Farm Statistics Section =================== -->
+
+<!-- Optional: Small custom styles -->
+<style>
+  .hover-opacity-100:hover {
+    opacity: 1 !important;
+    transition: opacity 0.3s ease-in-out;
+  }
+  .btn-group .btn {
+    transition: transform 0.3s ease;
+  }
+  .btn-group .btn:hover {
+    transform: scale(1.05);
+  }
+  .status-badge {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+</style>
+
+{% endblock %}

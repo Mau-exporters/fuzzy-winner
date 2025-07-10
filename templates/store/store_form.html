@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Add Farm Product{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4">🌾 Add a New Farm Product</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Product Name</label>
+      <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="price" class="form-label">Price ($)</label>
+      <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="category" class="form-label">Product Category</label>
+      <select class="form-select" id="category" name="category" required>
+        <option value="">-- Select Category --</option>
+        <option value="Vegetables">Vegetables</option>
+        <option value="Fruits">Fruits</option>
+        <option value="Grains">Grains</option>
+        <option value="Dairy">Dairy</option>
+        <option value="Livestock">Livestock</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="tag" class="form-label">Tag (optional)</label>
+      <input type="text" class="form-control" id="tag" name="tag" placeholder="e.g. Organic, Fresh, Local">
+    </div>
+
+    <div class="mb-3">
+      <label for="image" class="form-label">Product Image</label>
+      <input class="form-control" type="file" id="image" name="image" accept="image/*">
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <a href="{% url 'exporters_app:store' %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-success">Add Product</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- Flash Messages -->
+{% if messages %}
+  <div class="messages container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ==================== Hero Section ==================== -->
+<section id="hero" class="hero section py-5">
+  <div class="container-fluid" data-aos="fade-up">
+    <div class="row g-4 align-items-start">
+
+      <!-- 👉 Left Column: Content -->
+      <div class="col-lg-6">
+        <div class="p-4 d-flex flex-column justify-content-center h-100">
+
+          <div class="status-badge mb-3">Orders Open</div>
+
+          <h2 class="headline mb-3">Cultivating Quality, Harvesting Trust</h2>
+          <p class="description mb-4">
+            Experience the richness of nature through our organic farm produce.
+            Grown with care and harvested with integrity, straight from our fields to your table.
+          </p>
+
+          <div class="opening-hours mb-4">
+            <i class="bi bi-clock me-2"></i>
+            <span>Available Daily: 6am - 6pm</span>
+          </div>
+
+          <div class="btn-group mb-4">
+            <a href="#book-an-order" class="btn btn-book btn-primary me-2">book an Order</a>
+            <a href="#menu" class="btn btn-menu btn-outline-secondary">View Farm Products</a>
+          </div>
+
+          <div class="social-links mt-auto">
+            <a href="#" class="me-2"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="me-2"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="me-2"><i class="bi bi-twitter"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+            <a href="#"><i class="bi bi-tiktok"></i></a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 👉 Right Column: Carousel & Admin Form -->
+      <div class="col-lg-6">
+        <div class="d-flex flex-column align-items-center px-3 py-4">
+
+          <!-- 🖼️ Carousel -->
+          <div class="swiper hero-swiper init-swiper w-100" data-aos="zoom-out" data-aos-delay="100">
+            <script type="application/json" class="swiper-config">
+              {
+                "loop": true,
+                "speed": 800,
+                "autoplay": { "delay": 5000 },
+                "effect": "fade",
+                "slidesPerView": 1,
+                "navigation": {
+                  "nextEl": ".swiper-button-next",
+                  "prevEl": ".swiper-button-prev"
+                }
+              }
+            </script>
+
+            <div class="swiper-wrapper">
+              {% for slide in carousel_images %}
+                <div class="swiper-slide">
+                  <div class="img-container position-relative text-center">
+                    <img 
+                      src="{{ slide.image.url }}" 
+                      alt="{{ slide.alt_text }}" 
+                      class="img-fluid rounded-4 w-75" 
+                      style="height: 300px; object-fit: cover;"
+                    >
+                    {% if is_admin %}
+                    <form method="POST" class="position-absolute top-0 end-0 m-2">
+                      {% csrf_token %}
+                      <input type="hidden" name="delete_image" value="{{ slide.id }}">
+                      <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </div>
+              {% empty %}
+                <div class="swiper-slide">
+                  <div class="img-container text-center">
+                    <img 
+                      src="{% static 'assets/img/restaurant/default-slide.jpg' %}" 
+                      alt="Default Farm Slide" 
+                      class="img-fluid rounded-4 w-75" 
+                      style="height: 300px; object-fit: cover;"
+                    >
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+          </div>
+
+          {% if is_admin %}
+          <!-- 🛠️ Admin Carousel Form -->
+          <div class="admin-carousel-form mt-4 w-100">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Manage Farm Carousel</h5>
+
+                <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+
+                  <div class="mb-3">
+                    <label for="image" class="form-label">Farm Image</label>
+                    <input type="file" name="image" id="image" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="alt_text" class="form-label">Alt Text</label>
+                    <input type="text" name="alt_text" id="alt_text" maxlength="150" class="form-control" required>
+                  </div>
+
+                  <button type="submit" name="add_image" class="btn btn-primary">Add Farm Image</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ================== /Hero Section =================== -->
+
+{% endblock %}
