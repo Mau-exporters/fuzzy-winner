@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
 
 class MpesaPayment(models.Model):
-    """Model to store M-Pesa payment transactions."""
+    """
+    Model to store M-Pesa payment transaction details.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mpesa_payments')
     phone_number = models.CharField(max_length=15)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -19,20 +20,32 @@ class MpesaPayment(models.Model):
 
     def __str__(self):
         status = "Success" if self.is_successful else "Pending"
-        return f"MPESA Payment ({self.amount} KES) by {self.phone_number} - {status}"
+        return f"M-PESA Payment of KES {self.amount} by {self.phone_number} - {status}"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Mpesa Payment"
+        verbose_name_plural = "Mpesa Payments"
+
+
 class LipaNaMpesaPassword(models.Model):
+    """
+    Stores Business Shortcode and Passkey for Lipa na M-PESA Online.
+    """
     shortcode = models.CharField(max_length=50)
     passkey = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.shortcode}"
+        return f"Shortcode: {self.shortcode}"
+
 
 class MpesaAccessToken(models.Model):
+    """
+    Stores M-PESA API Access Tokens.
+    """
     token = models.CharField(max_length=255)
     expires_in = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.token
-
-
+        return f"Access Token (Created: {self.created_at.strftime('%Y-%m-%d %H:%M:%S')})"
