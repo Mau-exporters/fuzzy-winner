@@ -47,13 +47,17 @@
     <div class="card shadow-sm border-0">
       <div class="card-body">
         <h5 class="card-title mb-3">Pay with M-Pesa</h5>
-       <form method="post" action="{% url 'transactions_app:lipa_na_mpesa_online' %}">
+        <form method="post" action="{% url 'transactions_app:lipa_na_mpesa_online' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label for="phone_number" class="form-label">Phone Number (2547xxxxxxxx):</label>
-            <input type="text" id="phone_number" name="phone" class="form-control" required pattern="2547[0-9]{8}" placeholder="2547xxxxxxxx">
+            <input type="text" id="phone_number" name="phone" class="form-control"
+                   required pattern="2547[0-9]{8}" placeholder="2547xxxxxxxx">
           </div>
-          <input type="hidden" name="amount" value="{{ total }}">
+
+          <!-- Hidden total amount -->
+          <input type="hidden" name="amount" value="{{ total|floatformat:'0' }}">
+
           <button type="submit" class="btn btn-success">
             <i class="bi bi-phone"></i> Pay KES {{ total|floatformat:"2" }} with M-Pesa
           </button>
@@ -74,7 +78,7 @@
         {% endfor %}
       </div>
     {% endif %}
-    
+
   </div>
 </section>
 {% endblock %}

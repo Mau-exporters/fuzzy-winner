@@ -20,7 +20,8 @@ def checkout(request):
     if not request.user.is_authenticated:
         return render(request, 'transactions/checkout.html', {
             'cart_items': [],
-            'total': 0,
+            'total': total,
+            'total_int': int(total),
             'messages': ['You must be logged in to view your cart.']
         })
 
@@ -68,15 +69,18 @@ def get_mpesa_access_token(request):
 # -----------------------------
 @csrf_exempt
 def lipa_na_mpesa_online(request):
-    """
-    Sends the STK Push prompt to M-PESA API.
-    """
     if request.method == "POST":
         phone = request.POST.get('phone')
         amount = request.POST.get('amount')
 
         if not phone or not amount:
             return JsonResponse({"error": "Phone and amount are required"}, status=400)
+
+        try:
+            # Convert amount to int to ensure it's a valid M-PESA amount
+            amount = int(float(amount))
+        except ValueError:
+            return JsonResponse({"error": "Invalid amount format"}, status=400)
 
         access_token = MpesaAccessToken.validated_mpesa_access_token
         api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
@@ -94,19 +98,28 @@ def lipa_na_mpesa_online(request):
             "PartyA": phone,
             "PartyB": LipanaMpesaPpassword.Business_short_code,
             "PhoneNumber": phone,
-            "CallBackURL": "https://yourdomain.com/transactions/callback/",  # <-- update this
+            "CallBackURL": "https://yourdomain.com/transactions/callback/",
             "AccountReference": "mauexporters",
             "TransactionDesc": "Booking Charges"
         }
 
         try:
             response = requests.post(api_url, json=payload, headers=headers)
-            return JsonResponse(response.json())
+            response_data = response.json()
+
+            if response_data.get("ResponseCode") == "0":
+                return HttpResponse("Success")
+
+            else:
+                return JsonResponse({
+                    "error": response_data.get("errorMessage", "Transaction failed")
+                }, status=400)
 
         except requests.exceptions.RequestException as e:
             return JsonResponse({"error": str(e)}, status=500)
 
     return HttpResponseBadRequest("Invalid request method")
+
 
 
 # -----------------------------
