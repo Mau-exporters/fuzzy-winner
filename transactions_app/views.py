@@ -1,8 +1,8 @@
-# import json
-# import requests
-# from django.http import HttpResponse, JsonResponse
-# from requests.auth import HTTPBasicAuth
-# from transactions_app.credentials import LipanaMpesaPpassword, MpesaAccessToken
+import json
+import requests
+from django.http import HttpResponse, JsonResponse
+from requests.auth import HTTPBasicAuth
+from transactions_app.credentials import LipanaMpesaPpassword, MpesaAccessToken
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -78,27 +78,27 @@ def get_mpesa_access_token(request):
 # -----------------------------
  
 
-# @csrf_exempt
-# def lipa_na_mpesa_online(request):
-#     """ Sends the stk push prompt """
-#     if request.method =="POST":
-#         phone = request.POST['phone']
-#         amount = request.POST['amount']
-#         access_token = MpesaAccessToken.validated_mpesa_access_token
-#         api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-#         headers = {"Authorization": "Bearer %s" % access_token}
-#         request = {
-#             "BusinessShortCode": LipanaMpesaPpassword.Business_short_code,
-#             "Password": LipanaMpesaPpassword.decode_password,
-#             "Timestamp": LipanaMpesaPpassword.lipa_time,
-#             "TransactionType": "CustomerPayBillOnline",
-#             "Amount": amount,
-#             "PartyA": phone,
-#             "PartyB": LipanaMpesaPpassword.Business_short_code,
-#             "PhoneNumber": phone,
-#             "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
-#             "AccountReference": "mauexporters",
-#             "TransactionDesc": "Booking Charges"
-#         }
-#         response = requests.post(api_url, json=request, headers=headers)
-#         return HttpResponse("Success")
+@csrf_exempt
+def lipa_na_mpesa_online(request):
+    """ Sends the stk push prompt """
+    if request.method =="POST":
+        phone = request.POST['phone']
+        amount = request.POST['amount']
+        access_token = MpesaAccessToken.validated_mpesa_access_token
+        api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        headers = {"Authorization": "Bearer %s" % access_token}
+        request = {
+            "BusinessShortCode": LipanaMpesaPpassword.Business_short_code,
+            "Password": LipanaMpesaPpassword.decode_password,
+            "Timestamp": LipanaMpesaPpassword.lipa_time,
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": amount,
+            "PartyA": phone,
+            "PartyB": LipanaMpesaPpassword.Business_short_code,
+            "PhoneNumber": phone,
+            "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
+            "AccountReference": "mauexporters",
+            "TransactionDesc": "Booking Charges"
+        }
+        response = requests.post(api_url, json=request, headers=headers)
+        return HttpResponse("Success")
