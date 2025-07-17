@@ -17,7 +17,7 @@
             <div class="card-body">
               <h5 class="card-title">{{ item.name }}</h5>
               <p class="card-text">{{ item.description }}</p>
-              <p class="card-text text-muted">${{ item.price }}</p>
+              <p class="card-text text-muted">ksh{{ item.price }}</p>
               <div class="d-flex justify-content-between">
                 <a href="{% url 'exporters_app:remove_from_wishlist' item.id %}" class="btn btn-outline-danger btn-sm">Remove</a>
                 <a href="{% url 'exporters_app:add_to_cart' item.id %}" class="btn btn-outline-primary btn-sm">Add to Cart</a>
