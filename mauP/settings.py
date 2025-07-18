@@ -141,4 +141,12 @@ MPESA_CONSUMER_SECRET = 'rNbVmV7SVyTxAXAbZC1e1tsQoU0RCAkgFdl5AgDLFlLZwI3W2o6P4RA
 MPESA_SHORTCODE = '174379'  # Replace with your shortcode
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_CALLBACK_URL = 'https://yourdomain.com/transactions/callback/'  # Your public callback URL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yourprovider.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@example.com'
+EMAIL_HOST_PASSWORD = 'your-password'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 

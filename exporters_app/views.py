@@ -9,6 +9,9 @@ from requests.auth import HTTPBasicAuth
 from django.views.decorators.csrf import csrf_exempt  # <--- Added this import
 from django.conf import settings  # <--- Added this to use settings variables
 from .models import Reservation, Store, Cart, CartItem, Wishlist, Carousel, TeamMember, Feature, FarmStatistic, Event, HeroSlide
+import random
+from django.core.mail import send_mail
+
 
 
 
@@ -316,6 +319,45 @@ def events(request):
         'upcoming_events': upcoming_events
     }
     return render(request, "events.html", context)
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+# Send OTP via email
+def send_otp_email(user_email, otp):
+    subject = "Your OTP Code"
+    message = f"Your OTP is: {otp}"
+    from_email = "no-reply@yourdomain.com"
+    recipient_list = [user_email]
+    send_mail(subject, message, from_email, recipient_list)
+
+# Step 1: Send OTP
+@login_required
+def send_otp(request):
+    otp = generate_otp()
+    request.session['otp'] = otp  # Save OTP to session
+    send_otp_email(request.user.email, otp)
+    messages.success(request, "OTP sent to your email.")
+    return redirect('verify_otp')
+
+# Step 2: Verify OTP
+@login_required
+def verify_otp(request):
+    if request.method == "POST":
+        input_otp = request.POST.get("otp")
+        stored_otp = request.session.get("otp")
+
+        if input_otp == stored_otp:
+            messages.success(request, "OTP Verified!")
+            del request.session['otp']  # Remove OTP from session
+            return redirect('home')  # Redirect after successful verification
+        else:
+            messages.error(request, "Invalid OTP. Please try again.")
+            return redirect('verify_otp')
+
+    return render(request, "otp/verify.html")
+
+
+
 
 # ------------------ M-Pesa Integration ------------------ #
 

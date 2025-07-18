@@ -30,6 +30,8 @@ urlpatterns = [
     path('store/add/', views.add_store_item, name='add_store_item'),
     path('store/edit/<int:item_id>/', views.edit_store_item, name='edit_store_item'),
     path('store/delete/<int:item_id>/', views.delete_store_item, name='delete_store_item'),
+       path('send-otp/', views.send_otp, name='send_otp'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
 
    
 ]
