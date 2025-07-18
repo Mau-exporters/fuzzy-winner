@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import random
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Reservation(models.Model):
     """Table reservation for customers."""
@@ -125,15 +128,22 @@ class HeroSlide(models.Model):
     def __str__(self):
         return self.alt_text or f"Hero Slide {self.pk}"
 
+
+
 class OTP(models.Model):
+    PURPOSE_CHOICES = (
+        ('reset', 'Password Reset'),
+        ('2fa', 'Two-Factor Authentication'),
+    )
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES, default='reset')
     created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()  # ✅ Add this field
 
-    def is_valid(self):
-        return timezone.now() - self.created_at < timezone.timedelta(minutes=5)
+    def is_expired(self):
+        return timezone.now() > self.expires_at
 
     def __str__(self):
-        return f"OTP for {self.user.username}"
-    
-
+        return f"{self.user.username} | {self.purpose} | {self.code}"

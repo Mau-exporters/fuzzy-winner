@@ -9,8 +9,15 @@ from requests.auth import HTTPBasicAuth
 from django.views.decorators.csrf import csrf_exempt  # <--- Added this import
 from django.conf import settings  # <--- Added this to use settings variables
 from .models import Reservation, Store, Cart, CartItem, Wishlist, Carousel, TeamMember, Feature, FarmStatistic, Event, HeroSlide
-import random
 from django.core.mail import send_mail
+from django.utils import timezone
+from .models import OTP
+import random
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.contrib.auth.hashers import make_password
+from .models import OTP, User
 
 
 
@@ -319,42 +326,193 @@ def events(request):
         'upcoming_events': upcoming_events
     }
     return render(request, "events.html", context)
-def generate_otp():
-    return str(random.randint(100000, 999999))
+class OTPService:
+    @staticmethod
+    def generate():
+        return str(random.randint(100000, 999999))
 
-# Send OTP via email
-def send_otp_email(user_email, otp):
-    subject = "Your OTP Code"
-    message = f"Your OTP is: {otp}"
-    from_email = "no-reply@yourdomain.com"
-    recipient_list = [user_email]
-    send_mail(subject, message, from_email, recipient_list)
+    @staticmethod
+    def send(destination_email, otp_code):
+        # Replace with actual email sending logic
+        print(f"Sending OTP {otp_code} to {destination_email}")
 
-# Step 1: Send OTP
-@login_required
-def send_otp(request):
-    otp = generate_otp()
-    request.session['otp'] = otp  # Save OTP to session
-    send_otp_email(request.user.email, otp)
-    messages.success(request, "OTP sent to your email.")
-    return redirect('verify_otp')
 
-# Step 2: Verify OTP
-@login_required
+def auth_view(request):
+    step = request.session.get('step', 'login')
+
+    if request.method == 'POST':
+        # LOGIN STEP
+        if step == 'login':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(username=username, password=password)
+
+            if user:
+                otp = OTPService.generate()
+                OTP.objects.create(
+                    user=user,
+                    code=otp,
+                    purpose='2fa',
+                    expires_at=timezone.now() + timezone.timedelta(minutes=10)
+                )
+                OTPService.send(user.email, otp)
+                request.session['2fa_user_id'] = user.id
+                request.session['step'] = 'verify_2fa'
+                return redirect('auth_view')
+            else:
+                messages.error(request, "Invalid credentials")
+
+        # VERIFY 2FA OTP STEP
+        elif step == 'verify_2fa':
+            otp_code = request.POST.get('otp')
+            user_id = request.session.get('2fa_user_id')
+
+            try:
+                user = User.objects.get(id=user_id)
+                otp_entry = OTP.objects.filter(
+                    user=user, code=otp_code, purpose='2fa'
+                ).latest('created_at')
+
+                if otp_entry.is_expired():
+                    messages.error(request, "OTP expired")
+                else:
+                    login(request, user)
+                    request.session.flush()
+                    messages.success(request, "Login successful")
+                    return redirect('home')
+            except (User.DoesNotExist, OTP.DoesNotExist):
+                messages.error(request, "Invalid OTP")
+
+        # REQUEST PASSWORD RESET STEP
+        elif step == 'request_password_reset':
+            email = request.POST.get('email')
+            users = User.objects.filter(email=email)
+            if users.count() == 1:
+                user = users.first()
+                otp = OTPService.generate()
+                OTP.objects.create(
+                    user=user,
+                    code=otp,
+                    purpose='reset',
+                    expires_at=timezone.now() + timezone.timedelta(minutes=10)
+                )
+                OTPService.send(user.email, otp)
+                request.session['reset_email'] = email
+                request.session['step'] = 'verify_password_reset'
+                messages.success(request, "OTP sent to your email.")
+                return redirect('exporters_app:auth_view')
+            elif users.count() > 1:
+                messages.error(request, "Multiple users found with this email. Please contact support.")
+            else:
+                messages.error(request, "User not found.")
+
+        # VERIFY PASSWORD RESET OTP STEP
+        elif step == 'verify_password_reset':
+            email = request.POST.get('email')
+            otp_code = request.POST.get('otp')
+
+            users = User.objects.filter(email=email)
+            if users.count() == 1:
+                user = users.first()
+                try:
+                    otp_entry = OTP.objects.filter(
+                        user=user, code=otp_code, purpose='reset'
+                    ).latest('created_at')
+
+                    if otp_entry.is_expired():
+                        messages.error(request, "OTP expired")
+                    else:
+                        request.session['reset_user_id'] = user.id
+                        request.session['step'] = 'reset_password'
+                        messages.success(request, "OTP verified.")
+                        return redirect('auth_view')
+                except OTP.DoesNotExist:
+                    messages.error(request, "Invalid OTP.")
+            elif users.count() > 1:
+                messages.error(request, "Multiple users found with this email. Please contact support.")
+            else:
+                messages.error(request, "Invalid OTP or email.")
+
+        # RESET PASSWORD STEP
+        elif step == 'reset_password':
+            password = request.POST.get('password')
+            user_id = request.session.get('reset_user_id')
+
+            try:
+                user = User.objects.get(id=user_id)
+                user.set_password(password)
+                user.save()
+                request.session.flush()
+                messages.success(request, "Password reset successful.")
+                return redirect('auth_view')
+            except User.DoesNotExist:
+                messages.error(request, "Something went wrong.")
+
+    return render(request, 'forgot_password.html', {
+        'step': request.session.get('step', 'login')
+    })
+
+
+
+# Shortcut to start password reset flow
+def start_password_reset(request):
+    request.session.flush()
+    request.session['step'] = 'request_password_reset'
+    return redirect('exporters_app:auth_view')
 def verify_otp(request):
-    if request.method == "POST":
-        input_otp = request.POST.get("otp")
-        stored_otp = request.session.get("otp")
+    if request.method == 'POST':
+        code = request.POST.get('otp')
+        user_id = request.session.get('pending_user_id')
+        purpose = request.session.get('otp_purpose')  # 'register', '2fa', or 'reset'
 
-        if input_otp == stored_otp:
-            messages.success(request, "OTP Verified!")
-            del request.session['otp']  # Remove OTP from session
-            return redirect('home')  # Redirect after successful verification
-        else:
+        try:
+            user = User.objects.get(id=user_id)
+            otp = OTP.objects.filter(user=user, code=code, purpose=purpose).latest('created_at')
+
+            if otp.is_expired():
+                messages.error(request, "OTP expired. Please request a new one.")
+                return redirect('verify_otp')
+
+            # Valid OTP
+            if purpose == 'register' or purpose == '2fa':
+                login(request, user)
+                messages.success(request, "Verification successful. You are now logged in.")
+                request.session.flush()
+                return redirect('home')  # Replace with your home URL
+
+            elif purpose == 'reset':
+                request.session['reset_user_id'] = user.id
+                request.session['step'] = 'reset_password'
+                return redirect('exporters_app:auth_view')  # Leads to reset password form
+
+        except (User.DoesNotExist, OTP.DoesNotExist):
             messages.error(request, "Invalid OTP. Please try again.")
-            return redirect('verify_otp')
 
-    return render(request, "otp/verify.html")
+    return render(request, 'verify_otp.html')
+def resend_otp(request):
+    user_id = request.session.get('pending_user_id')
+    purpose = request.session.get('otp_purpose')
+
+    try:
+        user = User.objects.get(id=user_id)
+        otp_code = OTPService.generate()
+        OTP.objects.create(
+            user=user,
+            code=otp_code,
+            purpose=purpose,
+            expires_at=timezone.now() + timezone.timedelta(minutes=10)
+        )
+        OTPService.send(user.email, otp_code)
+        messages.success(request, "OTP resent successfully.")
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+
+    return redirect('verify_otp')
+def start_password_reset(request):
+    request.session.flush()
+    request.session['step'] = 'request_password_reset'
+    return redirect('exporters_app:auth_view')  # or wherever your password reset logic is
+
 
 
 

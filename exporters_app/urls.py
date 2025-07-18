@@ -30,8 +30,12 @@ urlpatterns = [
     path('store/add/', views.add_store_item, name='add_store_item'),
     path('store/edit/<int:item_id>/', views.edit_store_item, name='edit_store_item'),
     path('store/delete/<int:item_id>/', views.delete_store_item, name='delete_store_item'),
-       path('send-otp/', views.send_otp, name='send_otp'),
+    path('request-password-reset/', views.start_password_reset, name='request_password_reset'),
+    path('auth/', views.auth_view, name='auth_view'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
+    path('start-password-reset/', views.start_password_reset, name='start_password_reset'),
+    path('resend-otp/', views.resend_otp, name='resend_otp'),
 
-   
+
+
 ]
